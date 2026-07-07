@@ -1,0 +1,31 @@
+# Audio grezzi (troppo pesanti / non da condividere)
+*.mp3
+*.wav
+*.m4a
+*.aac
+*.flac
+
+# File temporanei di trascrizione
+*.tmp
+*_temp.*
+transcripts_raw/
+
+# Ambiente Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+
+# File di sistema
+.DS_Store
+Thumbs.db
+
+# File di editor
+.vscode/
+.idea/
+*.swp
+
+# File di lock/cache di modelli WhisperX
+*.pt
+models_cache/
