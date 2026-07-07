@@ -62,7 +62,7 @@ Nel file ci sono dei placeholder tra parentesi quadre `[...]` che **devi sostitu
 |---|---|---|
 | `"[nome.audio]"` | variabile `FILES` | Il percorso (o i percorsi) del/dei file audio da trascrivere, es. `"lezione1.mp3"` oppure percorso completo `"C:/Users/tuonome/Desktop/lezione1.mp3"`. Puoi aggiungere più file separati da virgola per elaborarli in sequenza. |
 | `"[nome del corso]"` | variabile `PROMPT` | Il nome del corso/materia (es. `"Farmacologia di Precisione"`), per aiutare WhisperX a riconoscere meglio termini specifici. |
-| `"[concetti chiave per i vari corsi]"` | variabile `PROMPT` | Termini tecnici, nomi propri, acronimi ricorrenti nella lezione (es. nomi di farmaci, geni, professori) — aiuta la trascrizione a riconoscerli correttamente invece di "inventare" parole simili (lo trovi nei file inseriti a disposizione. |
+| `"[concetti chiave per i vari corsi]"` | variabile `PROMPT` | Termini tecnici, nomi propri, acronimi ricorrenti nella lezione (es. nomi di farmaci, geni, professori) — aiuta la trascrizione a riconoscerli correttamente invece di "inventare" parole simili (lo trovi nei file inseriti a disposizione "concetti chiave dei corsi"). |
 | `"[nome del prof/prof.ssa]"` | funzione `build_pdf` | Il nome del docente, che comparirà come sottotitolo nella prima pagina del PDF. |
 | `"[nome del file pdf da creare]"` | variabile `OUTPUT_PDF` | Il nome (e opzionalmente percorso) del PDF finale, es. `"Trascrizioni_Farmacologia.pdf"`. |
 
