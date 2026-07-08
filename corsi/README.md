@@ -14,11 +14,11 @@ I corsi sono suddivisi per semestre.
 
 ### Primo semestre
 
-- Biochimica
-- Virologia
-- Fisiologia
-- Biologia dello Sviluppo
-- Fisiopatologia
+- Biochimica metabolica e funzionale
+- Virologia molecolare
+- Fisiologia dei Sistemi Integrati
+- Biologia dello Sviluppo e de Differenziamento
+- Fisiopatologia d'Organo
 
 ### Secondo semestre
 
