@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Flashcard · Farmacogenetica</title>
+<meta name="description" content="Flashcard sui casi-farmaco di Farmacologia di Precisione (Prof.ssa Abbracchio) — warfarin, digossina, statine, tamoxifene, imatinib e altri." />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #F7F4EE;
+    font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  }
+  #root { min-height: 100vh; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- React + ReactDOM (production builds) -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<!-- Babel to let us write JSX directly in the browser (no build step needed) -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useMemo } = React;
+
+const CARDS = [
+// ===== WARFARIN =====
+{ drug: "Warfarin", color: "#8B3A3A", q: "Perché il warfarin ha un dosaggio così delicato?", a: "Basso indice terapeutico + polimorfismi su più geni: CYP2C9 (*2/*3, metabolizza l'S-warfarin attivo → accumulo se lento) e VKORC1 (−1639G>A, bersaglio farmacodinamico → meno enzima = più sensibilità). Oggi si fa test genetico pre-prescrizione." },
+{ drug: "Warfarin", color: "#8B3A3A", q: "Cosa succede associando rifampicina al warfarin?", a: "La rifampicina induce il CYP3A4: l'emivita del warfarin crolla da 47 a 18 ore → copertura antitrombotica persa → rischio trombotico. Meglio cambiare antibiotico che aumentare la dose." },
+{ drug: "Warfarin", color: "#8B3A3A", q: "Qual è il bersaglio farmacodinamico del warfarin e come funziona la variante del promotore?", a: "VKORC1 (vitamina K-epossido reduttasi). La variante −1639G>A riduce la trascrizione → meno enzima bersaglio → basta meno farmaco per inibirlo → i portatori dell'allele A richiedono dosi più basse." },
+{ drug: "Warfarin", color: "#8B3A3A", q: "Quali 3 geni determinano insieme la dose efficace di warfarin?", a: "CYP2C9 (PK, metabolismo S-warfarin), VKORC1 (PD, bersaglio), CYP4F2 (ossida la vitamina K, modula il cofattore). Monitoraggio con INR (target 2,0–3,0)." },
+{ drug: "Warfarin", color: "#8B3A3A", q: "Il warfarin è un racemo: che differenza c'è tra i due enantiomeri?", a: "L'S-warfarin (levogiro) è il più potente ed è substrato del CYP2C9, che lo trasforma in 6- e 7-idrossiwarfarina. Le varianti CYP2C9*2 e *3 (le più comuni in Europa) riducono il suo metabolismo, aumentando il rischio emorragico." },
+{ drug: "Warfarin", color: "#8B3A3A", q: "Con cosa si monitora l'effetto del warfarin in pratica clinica?", a: "Con il tempo di protrombina (marcatore dell'effetto anticoagulante) e, in forma standardizzata, con l'INR (International Normalized Ratio), target tipico 2,0–3,0." },
+{ drug: "Warfarin", color: "#8B3A3A", q: "In quali patologie si usa il warfarin?", a: "Fibrillazione atriale, TIA (attacchi ischemici transitori), prevenzione dell'ictus — è considerato un anticoagulante orale a basso indice terapeutico ma in alcuni casi insostituibile, salvavita." },
+{ drug: "Warfarin", color: "#8B3A3A", q: "A quale classe farmacologica appartiene il warfarin e perché?", a: "È un antagonista della vitamina K (AVK): inibisce l'enzima VKOR, bloccando il riciclo della vitamina K ridotta necessaria alla γ-carbossilazione dei fattori della coagulazione II, VII, IX, X." },
+{ drug: "Warfarin", color: "#8B3A3A", q: "Perché la dieta (vitamina K) va tenuta costante durante la terapia con warfarin?", a: "Un improvviso aumento di verdure a foglia verde (ricche di vitamina K) può antagonizzare il farmaco riducendone l'effetto. Non serve eliminare la vitamina K, ma mantenerne costante l'assunzione." },
+{ drug: "Warfarin", color: "#8B3A3A", q: "Qual è l'emivita 'normale' del warfarin in condizioni fisiologiche?", a: "47 ore. Con l'induzione da rifampicina scende a 18 ore, riducendo drasticamente la copertura antitrombotica tra una dose e l'altra." },
+{ drug: "Warfarin", color: "#8B3A3A", q: "Cosa succede se il metabolismo del warfarin è più lento del normale?", a: "Il farmaco si accumula tra una dose e l'altra → sovradosaggio relativo → rischio di emorragie (interne o esterne) anche per ferite non gravi." },
+{ drug: "Warfarin", color: "#8B3A3A", q: "Cosa succede se il metabolismo del warfarin è più veloce del normale?", a: "Il farmaco viene rimosso troppo presto, con copertura insufficiente prima della dose successiva → sotto-copertura anticoagulante → rischio di trombosi." },
+
+// ===== DIGOSSINA =====
+{ drug: "Digossina", color: "#4A6B8A", q: "Come influisce la variante ABCB1 1236C>T sulla digossina?", a: "Riduce l'espressione di P-gp; nei portatori omozigoti TT la digossina (basso indice terapeutico) si accumula di più nel plasma → rischio di superare la soglia di tossicità." },
+{ drug: "Digossina", color: "#4A6B8A", q: "Perché ridurre P-gp aumenta il plasma della digossina anche se P-gp dovrebbe 'estrudere'?", a: "P-gp è espressa anche nel tubulo renale: meno trasportatore = meno eliminazione renale = concentrazione plasmatica più alta. La relazione trasportatore-plasma non è lineare." },
+{ drug: "Digossina", color: "#4A6B8A", q: "Da cosa deriva la digossina e in quali patologie si usa?", a: "È un glicoside digitalico estratto dalla Digitalis purpurea, impiegato nell'insufficienza cardiaca congestizia e nelle aritmie: aumenta la forza di contrazione del cuore senza accelerarlo." },
+{ drug: "Digossina", color: "#4A6B8A", q: "Perché per la digossina 'non accelerare il battito' è un vantaggio clinico specifico?", a: "In un cuore scompensato, dilatato e disfunzionale, accelerare il battito peggiorerebbe la situazione; la digossina aumenta la contrattilità senza tachicardizzare." },
+
+// ===== STATINE =====
+{ drug: "Statine", color: "#5C7A5C", q: "Da cosa dipende il livello plasmatico delle statine?", a: "Da 4 trasportatori diversi (famiglia OATP + P-gp/ABCB1), ciascuno potenzialmente polimorfo. Per questo il primo esame in pratica è il dosaggio plasmatico del farmaco." },
+{ drug: "Statine", color: "#5C7A5C", q: "Qual è l'effetto collaterale più grave delle statine e il suo meccanismo?", a: "Rabdomiolisi: disgregazione delle proteine muscolari che, riversate nel sangue, ingolfano il filtro renale → blocco renale. Prima tappa: mialgia/miosite (~10% dei pazienti)." },
+{ drug: "Statine", color: "#5C7A5C", q: "Che effetto ha la variante ABCB1 1236C>T sulla simvastatina?", a: "Aumentata efficacia: in uno studio su 116 pazienti, riduzione del colesterolo totale 29% vs 24% e LDL quasi 40% vs 33,8%, perché la variante aumenta l'assorbimento orale del farmaco." },
+{ drug: "Statine", color: "#5C7A5C", q: "Quali fattori, secondo i consensus panel (es. European Atherosclerosis Society), aumentano il rischio di miopatia da statine?", a: "Dose elevata, età avanzata (metabolismo più lento), sesso femminile, mutazioni del CYP450, politerapia, popolazioni fragili (diabetici, trapiantati, ipotiroidei)." },
+{ drug: "Statine", color: "#5C7A5C", q: "Come si oggettiva clinicamente la perdita di funzione muscolare da statine, a fronte del solo dolore riferito?", a: "Con l'elettromiogramma. Spesso l'effetto è 'di classe': cambiare statina (es. rosuvastatina ↔ simvastatina) non risolve, e l'unica opzione è ridurre la dose o assumere il farmaco a giorni alterni." },
+{ drug: "Statine", color: "#5C7A5C", q: "Oltre a quello muscolare, quali altri apparati possono essere colpiti dagli effetti collaterali delle statine?", a: "Cutaneo (rash), SNC (cefalea, insonnia, neuropatia periferica simile al 'piede diabetico'), epatico/GI (↑transaminasi, diarrea), e raramente autoimmune (lupus eritematoso indotto)." },
+
+// ===== CITALOPRAM =====
+{ drug: "Citalopram", color: "#6B5B95", q: "Perché la stessa variante ABCB1 che è rischiosa per la digossina è vantaggiosa per il citalopram?", a: "Nella barriera ematoencefalica, ridurre P-gp riduce l'efflusso dal cervello: il farmaco, una volta entrato, viene estruso meno e raggiunge concentrazioni cerebrali terapeutiche più facilmente." },
+{ drug: "Citalopram", color: "#6B5B95", q: "A quale classe farmacologica appartiene il citalopram?", a: "SSRI (selective serotonin reuptake inhibitor) — a differenza dei triciclici, blocca selettivamente la ricaptazione della sola serotonina." },
+
+// ===== SALBUTAMOLO / β2 =====
+{ drug: "Salbutamolo (β2-agonisti)", color: "#B8860B", q: "Che effetto ha lo SNP Gly16Arg sul recettore β2-adrenergico?", a: "Accelera la desensibilizzazione: in vitro, dopo 24h di esposizione all'agonista, la responsività cala del 96% nel portatore vs 77% nel wild type, con recupero molto più lento." },
+{ drug: "Salbutamolo (β2-agonisti)", color: "#B8860B", q: "Che effetto ha lo SNP Thr164Ile sul recettore β2-adrenergico?", a: "Riduce potenza (EC50 ~100 volte più alta) ed efficacia (Emax <50%, circa 3 vs 8 pmol/min/mg). Potenza ed efficacia sono parametri indipendenti." },
+{ drug: "Salbutamolo (β2-agonisti)", color: "#B8860B", q: "Perché la desensibilizzazione del recettore β2 è normale, e quando diventa un problema?", a: "È un meccanismo fisiologico di protezione dal sovraccarico (la neurotrasmissione è pulsatoria). Diventa patologica quando la cinetica è alterata — troppo rapida o eccessiva — riducendo la risposta broncodilatatoria." },
+{ drug: "Salbutamolo (β2-agonisti)", color: "#B8860B", q: "Perché non esiste un'associazione univoca tra singolo SNP del β2 e risposta clinica?", a: "In vivo la risposta dipende da aplotipi di SNP ereditati insieme, non dal singolo polimorfismo isolato; per questo gli studi su grandi numeri non danno ancora un'associazione del tutto univoca." },
+
+// ===== GEFITINIB / EGFR =====
+{ drug: "Gefitinib", color: "#2F5F5F", q: "Come agisce il gefitinib e in chi è più efficace?", a: "Inibisce la tirosin-chinasi dell'EGFR bloccando la cross-fosforilazione. È particolarmente efficace nel carcinoma polmonare NSCLC con mutazioni attivanti che rendono il recettore costitutivamente attivo (indipendente dal ligando)." },
+{ drug: "Gefitinib", color: "#2F5F5F", q: "Come si attiva fisiologicamente l'EGFR, e cosa blocca il gefitinib?", a: "L'arrivo del ligando (servono 2 molecole) avvicina i due monomeri del recettore, che si trans-fosforilano a vicenda sulle tirosine intracellulari. Il gefitinib si lega alla porzione interna del recettore impedendo questa cross-fosforilazione." },
+{ drug: "Gefitinib", color: "#2F5F5F", q: "Quali cascate a valle dell'EGFR vengono bloccate dal gefitinib?", a: "La via del fosfatidilinositolo (fino ad AKT) e la via RAS-RAF-MEK-MAPK, che convergono su fattori trascrizionali (Myc, Jun, Fos) regolando le cicline e spingendo la proliferazione." },
+{ drug: "Gefitinib", color: "#2F5F5F", q: "Quante mutazioni servono in genere per trasformare una cellula in tumorale, e che ruolo ha RAS?", a: "In genere 4-6 mutazioni cooperanti (una sola viene compensata dal sistema immunitario, es. cellule NK). RAS, simile alla Gα ma senza βγ, è mutata e costitutivamente attiva nel ~50% dei tumori umani." },
+
+// ===== TAMOXIFENE =====
+{ drug: "Tamoxifene", color: "#A0522D", q: "Quando è indicato il tamoxifene e perché è inutile nei tumori ER-negativi?", a: "Solo nei carcinomi mammari ER-positivi (estrogeno-dipendenti). Nei ER-negativi la crescita non dipende dagli estrogeni: il farmaco è inutile e priva la paziente degli effetti protettivi cardiovascolari e cerebrali degli estrogeni." },
+{ drug: "Tamoxifene", color: "#A0522D", q: "Da quali enzimi è metabolizzato il tamoxifene?", a: "CYP2D6 e CYP3A4." },
+{ drug: "Tamoxifene", color: "#A0522D", q: "Che conseguenza sistemica ha il tamoxifene, oltre all'azione antitumorale?", a: "Induce una menopausa precoce: da qui il collegamento con la medicina di genere, poiché la protezione cardiovascolare estrogenica si perde e il rischio cardiovascolare della donna si avvicina a quello maschile con ~10 anni di anticipo." },
+
+// ===== SUCCINILCOLINA / PSEUDOCOLINESTERASI =====
+{ drug: "Succinilcolina", color: "#6E2C00", q: "A cosa serve la succinilcolina e chi la inattiva?", a: "È un analogo di sintesi dell'acetilcolina, miorilassante usato nell'intubazione: rilassa la trachea e poi scompare rapidamente perché degradata dalla pseudocolinesterasi." },
+{ drug: "Succinilcolina", color: "#6E2C00", q: "Cosa succede nei portatori di varianti della pseudocolinesterasi?", a: "Non inattivano (o lo fanno molto lentamente) la succinilcolina: il miorilassante resta attivo a lungo, bloccando anche la muscolatura respiratoria → apnea/depressione respiratoria prolungata, potenzialmente letale." },
+{ drug: "Succinilcolina", color: "#6E2C00", q: "A quale altro scenario tossicologico è parallelo l'effetto della succinilcolina non inattivata?", a: "Agli insetticidi organofosforici, che bloccano l'acetilcolinesterasi facendo accumulare acetilcolina, con lo stesso esito: paralisi respiratoria per eccesso di stimolazione colinergica." },
+
+// ===== AZATIOPRINA / TPMT =====
+{ drug: "Azatioprina", color: "#556B2F", q: "Perché la TPMT è cruciale per l'azatioprina?", a: "Le varianti TPMT*2/*3A/*3C (91% dei deficit enzimatici) riducono o aboliscono l'attività della tiopurina-metiltransferasi → accumulo del farmaco → mielosoppressione (leucopenia, trombocitopenia, epatotossicità). ~10% della popolazione italiana è a rischio." },
+{ drug: "Azatioprina", color: "#556B2F", q: "Che differenza c'è tra le reazioni avverse dose-dipendenti e le idiosincrasie dell'azatioprina?", a: "Le dose-dipendenti (es. mielosoppressione nei poor metabolizers) si gestiscono riducendo la dose. Le dose-indipendenti (es. pancreatite) e le idiosincrasie (reazioni allergiche imprevedibili) impongono il cambio totale di farmaco." },
+{ drug: "Azatioprina", color: "#556B2F", q: "Qual è l'attività residua delle varianti TPMT*3A/*3B rispetto al wild type?", a: "Circa 2% (quasi assente), contro il 100% dell'allele di riferimento TPMT*1. La variante TPMT*2 (G238C) ha invece attività residua ~26-28%." },
+{ drug: "Azatioprina", color: "#556B2F", q: "Esiste una variante TPMT che aumenta l'attività enzimatica?", a: "Sì: una variante in posizione 719 è associata a guadagno di funzione, con attività enzimatica ~120% rispetto al wild type." },
+{ drug: "Azatioprina", color: "#556B2F", q: "In quali patologie si usa l'azatioprina, oltre alla prevenzione del rigetto d'organo?", a: "Malattie autoimmuni: artrite reumatoide, morbo di Crohn, lupus eritematoso, anemia emolitica, porpora trombocitopenica; spesso in associazione a corticosteroidi per ridurne le dosi." },
+{ drug: "Azatioprina", color: "#556B2F", q: "Come si dimostra sperimentalmente che la proteina TPMT*2 è instabile?", a: "Con elettroforesi su gel SDS: nel wild type la banda resta stabile fino a ~24 ore, mentre nella variante TPMT*2 scompare già dopo 20-40 minuti, segno di rapida degradazione." },
+
+// ===== LEVODOPA =====
+{ drug: "Levodopa", color: "#7B4B94", q: "Perché la levodopa si somministra sempre con carbidopa?", a: "La carbidopa inibisce la dopa-decarbossilasi periferica (non attraversa la barriera ematoencefalica): impedisce la conversione periferica in dopamina, lasciando che sia solo la levodopa entrata nel cervello a diventare dopamina nel circuito nigrostriatale." },
+{ drug: "Levodopa", color: "#7B4B94", q: "La levodopa è un farmaco sintomatico o disease-modifying?", a: "Sintomatico: allevia i sintomi del Parkinson senza modificare la progressione della malattia (non è disease-modifying)." },
+{ drug: "Levodopa", color: "#7B4B94", q: "Qual è il limite a lungo termine della terapia con levodopa?", a: "L'aumento di dopamina non si verifica solo nel circuito nigrostriatale interessato, ma in tutto il cervello: col tempo questo può causare disturbi psichici (simili alla fase 'up' della schizofrenia)." },
+
+// ===== CODEINA =====
+{ drug: "Codeina", color: "#4682B4", q: "Perché la codeina può essere pericolosa negli ultra-rapid metabolizers del CYP2D6?", a: "La codeina (profarmaco, azione antitussiva) viene convertita a morfina dal CYP2D6. Negli ultra-rapid metabolizers, la conversione è molto più efficiente del normale: da una dose 'innocua' di antitussivo si può arrivare a una vera intossicazione da oppioide." },
+{ drug: "Codeina", color: "#4682B4", q: "Perché la codeina si usa come antitussivo e non la morfina, pur avendo entrambe attività bechica?", a: "La codeina ha conservato l'attività antitussiva (bechica) dell'oppio ma è un analgesico debole; la morfina, pur avendo la stessa attività, non si usa a questo scopo per i suoi effetti stupefacenti." },
+
+// ===== FELODIPINA =====
+{ drug: "Felodipina", color: "#CD853F", q: "Perché il succo di pompelmo è pericoloso con la felodipina?", a: "Le furanocumarine del pompelmo inibiscono il CYP3A4 intestinale fino a 24h. La felodipina ha biodisponibilità del 15% dopo primo passaggio; l'inibizione può triplicarne la concentrazione plasmatica → ipotensione marcata + tachicardia riflessa, potenzialmente aritmogena." },
+{ drug: "Felodipina", color: "#CD853F", q: "A quale classe appartiene la felodipina e qual è la soluzione corretta all'interazione col pompelmo?", a: "È un calcio-antagonista vasodilatatore antipertensivo. Trattandosi di un'interazione farmaco-alimento, la soluzione corretta è evitare l'alimento, non aggiustare la dose (difficilissimo da calcolare)." },
+
+// ===== MONTELUKAST =====
+{ drug: "Montelukast", color: "#008080", q: "Qual è il caso guida del drug repurposing con il montelukast?", a: "Antagonista dei cisteinil-leucotrieni (anti-asmatico), pleiotropico: ipotesi di effetto neuroprotettivo riducendo la neuroinfiammazione. Uno studio di riposizionamento può saltare la Fase 1 (sicurezza già nota) andando direttamente in Fase 2A/2B: costo ~5-10 milioni vs ~1 miliardo per un farmaco nuovo." },
+{ drug: "Montelukast", color: "#008080", q: "Su cosa agisce farmacologicamente il montelukast nella sua indicazione originaria?", a: "Antagonizza i cisteinil-leucotrieni, molecole pro-infiammatorie polmonari, da cui il suo uso anti-asmatico." },
+{ drug: "Montelukast", color: "#008080", q: "Quali evidenze hanno supportato l'ipotesi neuroprotettiva del montelukast?", a: "Meccanismo dimostrato in vitro, modelli in vivo, e casi osservazionali: minore incidenza di Alzheimer nei trattati e recupero cognitivo, prima di procedere a uno studio clinico mirato." },
+
+// ===== ASPIRINA =====
+{ drug: "Aspirina", color: "#117864", q: "Come procede il metabolismo dell'aspirina, fase 1 e fase 2?", a: "Fase 1: idrolisi del legame estere che stacca l'acetile, rigenerando acido salicilico. Fase 2: glucuronazione dell'acido salicilico, che diventa un glucuronato idrosolubile facilmente eliminabile con le urine." },
+{ drug: "Aspirina", color: "#117864", q: "Da cosa deriva chimicamente l'aspirina?", a: "È un derivato di semisintesi dell'acido salicilico (acido acetilsalicilico), storicamente contenuto nella corteccia del salice." },
+
+// ===== RIFAMPICINA + CONTRACCETTIVI =====
+{ drug: "Rifampicina + contraccettivi orali", color: "#7B241C", q: "Perché la rifampicina può causare fallimento della contraccezione orale?", a: "La rifampicina, come antibiotico induttore enzimatico, accelera il metabolismo degli ormoni contraccettivi, riducendone la copertura: in letteratura sono documentati numerosi concepimenti inattesi per questa interazione." },
+{ drug: "Rifampicina + contraccettivi orali", color: "#7B241C", q: "Quale altro farmaco, oltre alla rifampicina, ha un noto effetto induttore enzimatico rilevante in terapia cronica?", a: "La carbamazepina (anticonvulsivante) ha effetto induttore, così come aglio, caffè, alcol etilico e — in generale — gli antibiotici (a differenza degli antivirali)." },
+
+// ===== POMPELMO / IPERICO (interazioni generali) =====
+{ drug: "Pompelmo e Iperico (interazioni)", color: "#9C640C", q: "Qual è il meccanismo per cui il pompelmo altera il metabolismo di molti farmaci?", a: "Le furanocumarine inibiscono potentemente il CYP3A4 a livello intestinale; l'effetto di una sola assunzione può durare fino a 24 ore, aumentando la biodisponibilità di calcio-antagonisti, warfarin, ritonavir e molti altri." },
+{ drug: "Pompelmo e Iperico (interazioni)", color: "#9C640C", q: "Che tipo di interazione dà l'iperico, usato come blando antidepressivo naturale?", a: "È un potente induttore enzimatico, soprattutto alle concentrazioni presenti negli integratori — riduce quindi la biodisponibilità di molti farmaci co-somministrati." },
+
+// ===== BENZODIAZEPINE =====
+{ drug: "Benzodiazepine", color: "#34495E", q: "Come agiscono le benzodiazepine a livello recettoriale?", a: "Si legano al recettore GABA-A, un canale del cloro: tengono il canale aperto più a lungo → ingresso di Cl⁻ → iperpolarizzazione → ridotta eccitabilità neuronale (effetto sedativo)." },
+{ drug: "Benzodiazepine", color: "#34495E", q: "Perché alcuni pazienti mostrano un 'effetto paradosso' con le benzodiazepine?", a: "Polimorfismi del recettore GABA-A possono causare agitazione o insonnia anziché sedazione: è un esempio di variabilità su base farmacodinamica (bersaglio), non farmacocinetica." },
+{ drug: "Benzodiazepine", color: "#34495E", q: "Le benzodiazepine sono un esempio di variabilità su base farmacocinetica o farmacodinamica?", a: "Farmacodinamica: gli SNP agiscono sul recettore (GABA-A), non sugli enzimi che metabolizzano il farmaco — a differenza del warfarin, esempio classico di variabilità farmacocinetica." },
+
+// ===== EFAVIRENZ / CYP2B6 / BUPROPIONE =====
+{ drug: "Efavirenz", color: "#8B008B", q: "Come regola il miR-1271 il metabolismo dell'efavirenz?", a: "Un SNP 3'UTR del CYP2B6 (G→C) crea/potenzia un sito per il miR-1271, confermato al saggio della luciferasi (non dal miR-625, come inizialmente ipotizzato). Effetto gene-dose: nell'omozigote l'AUC crolla di più → ridotta capacità metabolica." },
+{ drug: "Efavirenz", color: "#8B008B", q: "Com'era strutturato lo studio che ha valutato i 6 SNP nella 3'UTR del CYP2B6?", a: "Su ~200 volontari sani, somministrando efavirenz e misurando l'AUC (area sotto la curva) delle concentrazioni plasmatiche per valutare variazioni nella farmacocinetica." },
+{ drug: "Efavirenz", color: "#8B008B", q: "Perché per un farmaco attivo l'interpretazione dell'AUC è opposta rispetto a un profarmaco?", a: "Per un farmaco attivo: più farmaco intatto = meno l'enzima sta lavorando. Per un profarmaco: più metabolita = più farmaco attivo. È una distinzione cruciale per prevedere tossicità o fallimento terapeutico." },
+{ drug: "Efavirenz", color: "#8B008B", q: "Perché si usa il bupropione per validare in vitro la variante del CYP2B6?", a: "Non perché sia metabolizzato dall'efavirenz, ma perché esiste un saggio biochimico semplice e standardizzato per il suo metabolita idrossilato: più idrossi-bupropione si forma, meglio funziona il CYP2B6." },
+{ drug: "Efavirenz", color: "#8B008B", q: "Su quali cellule si è validata l'interazione miR-1271–CYP2B6 con il saggio della luciferasi?", a: "Sulle cellule HepG2 (linea epatica umana), trasfettando i mimic dei microRNA candidati (miR-625-5p e miR-1271) insieme ai relativi controlli." },
+{ drug: "Efavirenz", color: "#8B008B", q: "Qual è la rilevanza clinica di una ridotta quantità di CYP2B6 nei pazienti in terapia cronica con efavirenz?", a: "Altera l'efficacia o la tossicità della terapia antiretrovirale — terapia particolarmente delicata perché l'HIV si integra nel DNA dell'ospite e può riattivarsi in condizioni di stress o immunodepressione." },
+
+// ===== MTHFR / miR-1903 =====
+{ drug: "MTHFR", color: "#B22222", q: "Come lo SNP 3'UTR dell'MTHFR aumenta il rischio di ictus tramite miR-1903?", a: "Lo SNP crea un sito di legame più efficiente per il miR-1903 (confermato in luciferasi, gene-dose): più MTHFR degradato → meno 5-metiltetraidrofolato → accumulo di omocisteina → danno endoteliale, placche, trombosi → rischio di ischemia cerebrale." },
+{ drug: "MTHFR", color: "#B22222", q: "Che ruolo fisiologico ha l'MTHFR nel ciclo della metionina?", a: "Converte il folato in 5-metiltetraidrofolato, che alimenta il ciclo della metionina, da cui deriva la SAM (S-adenosil-metionina), donatore universale di gruppi metilici per tutte le reazioni di metilazione, incluse quelle del DNA." },
+{ drug: "MTHFR", color: "#B22222", q: "Attraverso quale catena di eventi l'omocisteina in eccesso porta alla trombosi?", a: "Genera radicali liberi (ROS) → danno endoteliale → ridotta produzione di ossido nitrico (vasodilatatore) → esposizione delle cellule muscolari sottostanti → placche e attivazione/aggregazione piastrinica → trombo." },
+{ drug: "MTHFR", color: "#B22222", q: "Come era strutturato lo studio clinico sull'MTHFR e l'ischemia cerebrale?", a: "500 pazienti già colpiti da ischemia cerebrale vs 600 volontari sani; valutazione con score neurologici (incluso il Mini-Mental Test). I portatori della variante mostrano performance peggiori, sia nei sani sia — più marcatamente — nei pazienti (anche nel recupero)." },
+{ drug: "MTHFR", color: "#B22222", q: "Qual è la doppia finalità clinica dello studio su MTHFR e ictus?", a: "Prevenzione secondaria (impedire un secondo ictus in chi ne ha già avuto uno) e prevenzione primaria (monitorare e proteggere con profilassi i soggetti sani portatori della variante a rischio)." },
+
+// ===== METFORMINA =====
+{ drug: "Metformina", color: "#556B8A", q: "Come agisce la metformina e perché il 30% dei pazienti non risponde?", a: "Attiva l'AMPK epatico → riduce gluconeogenesi e acidi grassi liberi, migliorando la sensibilità insulinica. Lo studio EWAS (~18.000 pazienti) ha trovato 11 siti CpG ipermetilati associati alla non-risposta e 4 siti associati a intolleranza gastrointestinale." },
+{ drug: "Metformina", color: "#556B8A", q: "Con quale marcatore si è misurata la risposta alla metformina nello studio EWAS?", a: "L'emoglobina glicata (HbA1c), target 48-53 mmol/mol; un calo di almeno 11 unità rispetto al basale era preso come indice di risposta." },
+{ drug: "Metformina", color: "#556B8A", q: "Come era disegnato lo studio EWAS sulla metformina in termini di popolazione?", a: "~18.000 pazienti distribuiti in 3 coorti indipendenti, per garantire la riproducibilità del risultato — l'analogo epigenetico dei GWAS, condotto su scala genomica cercando siti di metilazione associati al fenotipo." },
+{ drug: "Metformina", color: "#556B8A", q: "Cosa introduce lo studio sulla metformina riguardo al concetto di 'orologio biologico'?", a: "Il pattern di metilazione del DNA cambia con l'età in modo regolare da poter stimare l'età biologica di un tessuto, che può differire dall'età anagrafica — collegando epigenetica, invecchiamento e risposta ai farmaci." },
+
+// ===== TEMOZOLOMIDE / MGMT =====
+{ drug: "Temozolomide", color: "#2E4053", q: "Perché nel glioblastoma l'ipermetilazione di MGMT è favorevole alla terapia?", a: "MGMT ripara il danno al DNA causato dal temozolomide (agente alchilante): se il suo promotore è ipermetilato, l'enzima è basso, il tumore non ripara il danno e risponde meglio. Sopravvivenza a 2 anni: ~50% (MGMT metilato) vs 13-14% (non metilato)." },
+{ drug: "Temozolomide", color: "#2E4053", q: "Perché il glioblastoma è un raro esempio in cui 'spegnere' un gene aiuta la terapia?", a: "MGMT normalmente difende il tumore riparando il danno indotto dal farmaco: la logica si inverte rispetto al solito (dove ipermetilazione = danno) perché qui silenziare l'enzima riparatore favorisce l'efficacia terapeutica." },
+{ drug: "Temozolomide", color: "#2E4053", q: "Oltre alla metilazione, quale variante di sequenza di MGMT è associata alla risposta al temozolomide?", a: "Un polimorfismo C>T, con odds ratio fino a ~3,6, confermato su più coorti indipendenti (australiana e americana) per un totale di oltre 300 pazienti." },
+{ drug: "Temozolomide", color: "#2E4053", q: "Qual è il meccanismo d'azione generale degli agenti alchilanti come il temozolomide?", a: "Attaccano gruppi alchilici al DNA per danneggiarlo e uccidere le cellule tumorali; la MGMT rimuove proprio questi gruppi, riparando il danno e contrastando l'effetto del farmaco." },
+
+// ===== PACLITAXEL =====
+{ drug: "Paclitaxel (tassolo)", color: "#7D3C98", q: "Come la demetilazione di ABCB1 causa resistenza al paclitaxel?", a: "La demetilazione del promotore di ABCB1 ne aumenta l'espressione → più P-gp → più efflusso del paclitaxel dalle cellule tumorali → farmaco espulso prima di agire → resistenza (multidrug resistance)." },
+{ drug: "Paclitaxel (tassolo)", color: "#7D3C98", q: "Qual è il meccanismo d'azione del paclitaxel?", a: "Stabilizza i microtubuli bloccando la mitosi delle cellule tumorali; è il substrato 'storico' usato per studiare la multidrug resistance mediata da ABCB1." },
+
+// ===== IMATINIB / LMC =====
+{ drug: "Imatinib", color: "#1A5276", q: "Come agisce l'imatinib e perché ha risposta variabile?", a: "Inibisce la tirosin-chinasi BCR-ABL (cromosoma Philadelphia, traslocazione 9;22) nella leucemia mieloide cronica. È il prototipo della targeted therapy, ma alcuni pazienti non rispondono affatto — da qui lo studio sul miR-342-5p." },
+{ drug: "Imatinib", color: "#1A5276", q: "Come il miR-342-5p sensibilizza le cellule K562 all'imatinib?", a: "Riduce l'espressione della ciclina D1 (CCND1), suo bersaglio diretto (confermato con luciferasi e seed mutata). In presenza di imatinib questo potenzia le rotture del DNA e l'apoptosi, in modo dose-dipendente." },
+{ drug: "Imatinib", color: "#1A5276", q: "Cos'è BCR-ABL e perché è 'doppiamente' oncogena?", a: "Proteina di fusione da traslocazione 9;22 (cromosoma Philadelphia), tirosin-chinasi costitutivamente attiva (sempre accesa, a differenza dei recettori fisiologici che necessitano di un ligando). Stimola la proliferazione E blocca l'apoptosi." },
+{ drug: "Imatinib", color: "#1A5276", q: "Perché si sceglie la linea cellulare K562 per studiare la resistenza all'imatinib?", a: "È una linea storica umana di leucemia mieloide che esprime in modo potente la proteina di fusione BCR-ABL — coerente con la malattia da modellare." },
+{ drug: "Imatinib", color: "#1A5276", q: "Come si è arrivati dal 'miRNoma' completo ai 4 candidati testati?", a: "Analisi globale (~5 pazienti vs controlli) su heat map → 18 microRNA differenzialmente espressi → selezione guidata da letteratura/pathway (ciclo cellulare, proliferazione, differenziamento) → 4 candidati confermati con qPCR su casistica più ampia." },
+{ drug: "Imatinib", color: "#1A5276", q: "Cosa emerge testando i 4 microRNA candidati sulle K562 insieme a dosi crescenti di imatinib?", a: "3 dei 4 non riducono l'attività tirosin-chinasica (alcuni la aumentano, effetto paradosso); solo il miR-342-5p riduce l'attività in modo dose-dipendente (0,1 e 0,5 µM), sensibilizzando le cellule al farmaco." },
+{ drug: "Imatinib", color: "#1A5276", q: "Con quale sequenza di esperimenti si è dimostrato che CCND1 è bersaglio diretto del miR-342-5p?", a: "Volcano plot (trascrittoma) → predizione bioinformatica del bersaglio → Western blot (la banda CCND1 quasi scompare, effetto reversibile con antago-miR) → saggio della luciferasi (3'UTR di CCND1) con seed mutata che abolisce l'effetto." },
+{ drug: "Imatinib", color: "#1A5276", q: "Come è stato validato in vivo l'effetto del miR-342-5p?", a: "Con un modello xenograft: K562 (miR-NEG vs miR-342-5p) impiantate in topi immunodeficienti. Confermata la sensibilizzazione all'imatinib, con maggiori rotture del DNA e apoptosi." },
+{ drug: "Imatinib", color: "#1A5276", q: "Dove si trova il gene del miR-342-5p e perché è rilevante saperlo?", a: "È un microRNA intronico, ospitato nel gene EVL (Ena/VASP-like): la sua espressione segue quella del gene ospite, il che aiuta a capire perché risulti ridotto nella malattia." },
+{ drug: "Imatinib", color: "#1A5276", q: "Come si è chiuso il cerchio dal singolo microRNA alla potenziale applicazione clinica?", a: "Interrogando banche dati pubbliche di pazienti LMC (tipo GEO): il profilo del miR-342-5p e dei geni che regola (proliferazione, apoptosi, riparazione del DNA) si associa a progressione di malattia e risposta ai TKI — possibile firma molecolare predittiva." },
+
+// ===== 5-FLUOROURACILE / DPYD =====
+{ drug: "5-Fluorouracile", color: "#943126", q: "Che ruolo ha la DPYD nel metabolismo del 5-fluorouracile?", a: "La DPYD inattiva/detossifica circa l'85% del 5-FU. Essendo molto polimorfica, varianti che la riducono causano tossicità grave perché il farmaco si accumula troppo." },
+{ drug: "5-Fluorouracile", color: "#943126", q: "Come i miR-27a/b aumentano la sensibilità delle cellule al 5-FU?", a: "Riducono l'espressione della DPYD (Western blot vs scrambled): l'IC50 del 5-FU scende da ~15 µM a <5 µM, cioè basta un terzo della dose per lo stesso effetto." },
+{ drug: "5-Fluorouracile", color: "#943126", q: "Come si usa oggi in clinica il polimorfismo DPYD prima del 5-FU?", a: "Test genetico di routine prima della terapia: nei portatori della variante a rischio (early-onset toxicity, confermato su 514 pazienti) si preferisce un antitumorale alternativo." },
+{ drug: "5-Fluorouracile", color: "#943126", q: "Qual è il meccanismo d'azione del 5-FU una volta attivato?", a: "È un profarmaco: attivato a un metabolita fosforilato che si inserisce (per somiglianza alle basi naturali) nel DNA in sintesi delle cellule tumorali; il fluoro ostacola la replicazione e provoca rotture del filamento (strand breaks)." },
+{ drug: "5-Fluorouracile", color: "#943126", q: "Da quanti microRNA candidati si è partiti per individuare miR-27a e miR-27b sul DPYD?", a: "Analisi bioinformatiche avevano identificato siti potenziali sulla 3'UTR della DPYD per almeno 5 microRNA; i saggi funzionali su cellule di carcinoma colorettale hanno isolato miR-27a e miR-27b come i due effettivamente attivi." },
+{ drug: "5-Fluorouracile", color: "#943126", q: "Qual è il meccanismo molecolare che collega il genotipo CC alla maggiore attività del miR-27a?", a: "Nell'omozigote CC si osserva un aumento del miR-27a per generazione di un precursore più efficacemente processato (cambia la conformazione del pre-microRNA) — non un nuovo sito sul bersaglio, ma un microRNA reso più efficace ('quarto scenario')." },
+{ drug: "5-Fluorouracile", color: "#943126", q: "Cosa significa che l'IC50 del 5-FU scende con i miR-27a/b, in termini pratici?", a: "IC50 più bassa = farmaco più attivo: basta una concentrazione minore per ottenere lo stesso effetto antitumorale — le cellule con più miR-27a/b sono quindi molto più sensibili al farmaco." },
+{ drug: "5-Fluorouracile", color: "#943126", q: "Su cosa si è normalizzato il Western blot che confronta DPYD nei diversi trattamenti?", a: "Sulla tubulina, come controllo di caricamento: proteina espressa in quantità costante, usata per verificare che le differenze osservate sull'enzima non dipendano da un numero diverso di cellule caricate." },
+
+// ===== VITAMINA D / GDM / miR-125b =====
+{ drug: "Vitamina D / GDM", color: "#1B4F72", q: "Qual è il collegamento tra vitamina D, CYP24A1 e diabete gestazionale (GDM)?", a: "Bassi livelli di vitamina D si associano a maggior rischio di GDM; il CYP24A1 degrada la vitamina D attiva (calcitriolo). Un eccesso di CYP24A1 abbassa quindi la vitamina D disponibile." },
+{ drug: "Vitamina D / GDM", color: "#1B4F72", q: "Come regola il miR-125b-5p il CYP24A1 nel contesto del diabete gestazionale?", a: "Il miR-125b-5p ha un'elevata complementarità predetta (~95%) con la 3'UTR del CYP24A1; correlazioni forti (R ~0,77 e 0,86) tra i livelli dei due tra i gruppi non-GDM, early-GDM e GDM." },
+{ drug: "Vitamina D / GDM", color: "#1B4F72", q: "Qual è stato il percorso sperimentale di validazione del bersaglio miR-125b-5p/CYP24A1?", a: "Ex vivo (campioni delle pazienti) → in silico (predizione con DIANA mirPath, da ~57 a ~10 miRNA candidati) → in vitro su linea di trofoblasto (HTR-8/SVneo) con mimic e antagomir." },
+{ drug: "Vitamina D / GDM", color: "#1B4F72", q: "Come si è chiusa la conferma finale dell'asse miR-125b-5p → CYP24A1?", a: "Manipolando l'asse (mimic/antagomir) si modulano i livelli di calcitriolo (vitamina D attiva) misurati, collegando l'osservazione clinica al meccanismo molecolare in modo completo." },
+
+// ===== CHININO / CHINIDINA / MALARIA =====
+{ drug: "Chinino / Chinidina", color: "#6C3483", q: "Cosa sono chinino e chinidina, e che ruolo hanno nella resistenza alla malaria?", a: "Sono farmaci antimalarici classici (la chinidina è anche usata come antiaritmico); sono substrati/modulatori di trasportatori di efflusso analoghi ad ABCB1, la cui espressione nel Plasmodium è regolata anche epigeneticamente, contribuendo alla resistenza." },
+{ drug: "Chinino / Chinidina", color: "#6C3483", q: "Che legame c'è tra l'anemia mediterranea (talassemia) e la farmacologia della malaria?", a: "È un esempio di medicina evoluzionistica: nelle popolazioni storicamente esposte alla malaria, la selezione ha favorito tratti come la talassemia, in cui l'alterazione dei globuli rossi ostacola il ciclo del Plasmodium." },
+{ drug: "Chinino / Chinidina", color: "#6C3483", q: "Su quanti pazienti era condotto lo studio sulla regolazione epigenetica di ABCB1 nella malaria?", a: "Circa 200 pazienti; l'analisi ha utilizzato controlli interni standard come il Western blot normalizzato sulla β-actina (ABCB1 corre a un peso molecolare elevato, ~170 kDa)." },
+{ drug: "Warfarin", color: "#8B3A3A", q: "Perché oggi il warfarin convive con antitrombotici più moderni, e quando resta insostituibile?", a: "Esistono oggi antagonisti del recettore P2Y12 (prasugrel, ticagrelor) più sicuri e maneggevoli, ma il warfarin resta in alcuni casi insostituibile ed è considerato un farmaco salvavita, specie in fibrillazione atriale e prevenzione dell'ictus." },
+];
+
+
+function ChevronLeft(props) {
+  return React.createElement("svg", { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", ...props },
+    React.createElement("polyline", { points: "15 18 9 12 15 6" }));
+}
+function ChevronRight(props) {
+  return React.createElement("svg", { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", ...props },
+    React.createElement("polyline", { points: "9 18 15 12 9 6" }));
+}
+function Shuffle(props) {
+  return React.createElement("svg", { width: 15, height: 15, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", ...props },
+    React.createElement("polyline", { points: "16 3 21 3 21 8" }),
+    React.createElement("line", { x1: 4, y1: 20, x2: 21, y2: 3 }),
+    React.createElement("polyline", { points: "21 16 21 21 16 21" }),
+    React.createElement("line", { x1: 15, y1: 15, x2: 21, y2: 21 }),
+    React.createElement("line", { x1: 4, y1: 4, x2: 9, y2: 9 }));
+}
+function RotateCcw(props) {
+  return React.createElement("svg", { width: 15, height: 15, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", ...props },
+    React.createElement("polyline", { points: "1 4 1 10 7 10" }),
+    React.createElement("path", { d: "M3.51 15a9 9 0 1 0 2.13-9.36L1 10" }));
+}
+function Check(props) {
+  return React.createElement("svg", { width: 15, height: 15, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", ...props },
+    React.createElement("polyline", { points: "20 6 9 17 4 12" }));
+}
+function X(props) {
+  return React.createElement("svg", { width: 15, height: 15, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", ...props },
+    React.createElement("line", { x1: 18, y1: 6, x2: 6, y2: 18 }),
+    React.createElement("line", { x1: 6, y1: 6, x2: 18, y2: 18 }));
+}
+function Pill(props) {
+  return React.createElement("svg", { width: 20, height: 20, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.75, strokeLinecap: "round", strokeLinejoin: "round", ...props },
+    React.createElement("path", { d: "m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" }),
+    React.createElement("path", { d: "m8.5 8.5 7 7" }));
+}
+
+function FlashcardApp() {
+  const [index, setIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [order, setOrder] = useState(() => CARDS.map((_, i) => i));
+  const [known, setKnown] = useState({});
+  const [filterDrug, setFilterDrug] = useState("Tutti");
+
+  const drugs = useMemo(() => ["Tutti", ...Array.from(new Set(CARDS.map((c) => c.drug)))], []);
+
+  const activeIndices = useMemo(() => {
+    if (filterDrug === "Tutti") return order;
+    return order.filter((i) => CARDS[i].drug === filterDrug);
+  }, [order, filterDrug]);
+
+  const safeIndex = Math.min(index, Math.max(activeIndices.length - 1, 0));
+  const cardIdx = activeIndices[safeIndex];
+  const card = CARDS[cardIdx];
+
+  const goTo = (n) => {
+    setFlipped(false);
+    setIndex((prev) => {
+      const len = activeIndices.length;
+      if (len === 0) return 0;
+      return (n + len) % len;
+    });
+  };
+
+  const shuffle = () => {
+    const arr = CARDS.map((_, i) => i);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    setOrder(arr);
+    setIndex(0);
+    setFlipped(false);
+  };
+
+  const reset = () => {
+    setOrder(CARDS.map((_, i) => i));
+    setIndex(0);
+    setFlipped(false);
+    setKnown({});
+  };
+
+  const markKnown = (val) => {
+    setKnown((prev) => ({ ...prev, [cardIdx]: val }));
+    goTo(safeIndex + 1);
+  };
+
+  const knownCount = Object.values(known).filter(Boolean).length;
+  const seenCount = Object.keys(known).length;
+
+  if (!card) {
+    return React.createElement("div", { style: { fontFamily: "Georgia, serif", padding: 40, textAlign: "center" } }, "Nessuna card disponibile.");
+  }
+
+  const navBtn = {
+    border: "1px solid #D8D0C0", background: "#FFFFFF", borderRadius: "50%",
+    width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center",
+    cursor: "pointer", color: "#2B2118",
+  };
+  const iconBtn = {
+    border: "1px solid #D8D0C0", background: "#FFFFFF", borderRadius: 8, padding: "8px 12px",
+    display: "flex", alignItems: "center", gap: 6, cursor: "pointer", color: "#6B5F4E", fontFamily: "inherit",
+  };
+
+  return React.createElement(
+    "div",
+    { style: { minHeight: "100vh", background: "#F7F4EE", fontFamily: "'Iowan Old Style','Palatino Linotype',Georgia,serif", display: "flex", flexDirection: "column", alignItems: "center", padding: "28px 16px 40px", boxSizing: "border-box" } },
+    React.createElement(
+      "div",
+      { style: { width: "100%", maxWidth: 560 } },
+      // Header
+      React.createElement(
+        "div",
+        { style: { display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14 } },
+        React.createElement(
+          "div",
+          { style: { display: "flex", alignItems: "center", gap: 8 } },
+          React.createElement(Pill, { color: "#2B2118" }),
+          React.createElement("h1", { style: { fontSize: 20, margin: 0, fontWeight: 700, color: "#2B2118", letterSpacing: "-0.01em" } }, "Farmacogenetica · Casi-farmaco")
+        ),
+        React.createElement("span", { style: { fontSize: 12, color: "#8A7F6E", fontFamily: "Menlo, monospace" } }, `${safeIndex + 1} / ${activeIndices.length}`)
+      ),
+      // Filter
+      React.createElement(
+        "div",
+        { style: { display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 18 } },
+        drugs.map((d) =>
+          React.createElement(
+            "button",
+            {
+              key: d,
+              onClick: () => { setFilterDrug(d); setIndex(0); setFlipped(false); },
+              style: {
+                border: "1px solid " + (filterDrug === d ? "#2B2118" : "#D8D0C0"),
+                background: filterDrug === d ? "#2B2118" : "transparent",
+                color: filterDrug === d ? "#F7F4EE" : "#6B5F4E",
+                borderRadius: 999, padding: "5px 12px", fontSize: 12, cursor: "pointer",
+                fontFamily: "inherit", transition: "all .15s ease",
+              },
+            },
+            d
+          )
+        )
+      ),
+      // Card
+      React.createElement(
+        "div",
+        { onClick: () => setFlipped((f) => !f), style: { perspective: 1200, cursor: "pointer", marginBottom: 18 } },
+        React.createElement(
+          "div",
+          {
+            style: {
+              position: "relative", minHeight: 260, borderRadius: 14,
+              transformStyle: "preserve-3d", transition: "transform .45s cubic-bezier(.4,.2,.2,1)",
+              transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+            },
+          },
+          // Front
+          React.createElement(
+            "div",
+            {
+              style: {
+                position: "absolute", inset: 0, backfaceVisibility: "hidden", borderRadius: 14,
+                background: "#FFFFFF", border: `1.5px solid ${card.color}33`, borderTop: `5px solid ${card.color}`,
+                padding: "26px 26px 22px", boxShadow: "0 2px 14px rgba(43,33,24,0.06)",
+                display: "flex", flexDirection: "column",
+              },
+            },
+            React.createElement("span", { style: { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: card.color } }, card.drug),
+            React.createElement(
+              "div",
+              { style: { flex: 1, display: "flex", alignItems: "center", marginTop: 14 } },
+              React.createElement("p", { style: { fontSize: 19, lineHeight: 1.45, color: "#2B2118", margin: 0, fontWeight: 500 } }, card.q)
+            ),
+            React.createElement("span", { style: { fontSize: 11, color: "#A89B85", alignSelf: "flex-end" } }, "tocca per la risposta ↻")
+          ),
+          // Back
+          React.createElement(
+            "div",
+            {
+              style: {
+                position: "absolute", inset: 0, backfaceVisibility: "hidden", transform: "rotateY(180deg)",
+                borderRadius: 14, background: card.color, padding: "26px 26px 22px",
+                boxShadow: "0 2px 14px rgba(43,33,24,0.12)", display: "flex", flexDirection: "column", overflowY: "auto",
+              },
+            },
+            React.createElement("span", { style: { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "#FFFFFFCC" } }, card.drug),
+            React.createElement("p", { style: { fontSize: 16, lineHeight: 1.55, color: "#FFFFFF", marginTop: 14, marginBottom: 0 } }, card.a)
+          )
+        )
+      ),
+      // Self-assessment
+      flipped &&
+        React.createElement(
+          "div",
+          { style: { display: "flex", gap: 10, marginBottom: 18 } },
+          React.createElement(
+            "button",
+            {
+              onClick: (e) => { e.stopPropagation(); markKnown(false); },
+              style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, border: "1px solid #C0574A", color: "#C0574A", background: "transparent", borderRadius: 10, padding: "10px 0", fontFamily: "inherit", fontSize: 13, cursor: "pointer" },
+            },
+            React.createElement(X, null), " Da ripassare"
+          ),
+          React.createElement(
+            "button",
+            {
+              onClick: (e) => { e.stopPropagation(); markKnown(true); },
+              style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, border: "1px solid #5C7A5C", color: "#5C7A5C", background: "transparent", borderRadius: 10, padding: "10px 0", fontFamily: "inherit", fontSize: 13, cursor: "pointer" },
+            },
+            React.createElement(Check, null), " La so"
+          )
+        ),
+      // Navigation
+      React.createElement(
+        "div",
+        { style: { display: "flex", alignItems: "center", justifyContent: "space-between" } },
+        React.createElement("button", { onClick: () => goTo(safeIndex - 1), style: navBtn, "aria-label": "Precedente" }, React.createElement(ChevronLeft, null)),
+        React.createElement(
+          "div",
+          { style: { display: "flex", gap: 8 } },
+          React.createElement("button", { onClick: shuffle, style: iconBtn, "aria-label": "Mescola" }, React.createElement(Shuffle, null), React.createElement("span", { style: { fontSize: 12 } }, "Mescola")),
+          React.createElement("button", { onClick: reset, style: iconBtn, "aria-label": "Reset" }, React.createElement(RotateCcw, null), React.createElement("span", { style: { fontSize: 12 } }, "Reset"))
+        ),
+        React.createElement("button", { onClick: () => goTo(safeIndex + 1), style: navBtn, "aria-label": "Successiva" }, React.createElement(ChevronRight, null))
+      ),
+      // Progress
+      seenCount > 0 &&
+        React.createElement("div", { style: { marginTop: 20, fontSize: 12, color: "#8A7F6E", textAlign: "center" } }, `${knownCount} su ${seenCount} valutate come "le so" (${CARDS.length} card totali)`)
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(FlashcardApp));
+</script>
+</body>
+</html>
